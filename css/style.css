@@ -77,7 +77,7 @@ hr {
 }
 
 /* --- Responsive Styles for Mobile --- */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
     .container {
         /* Box Model */
         width: 100%;
@@ -86,7 +86,7 @@ hr {
     h1 {
         /* Typography */
         font-size: 3em;
-        letter-spacing: 1px;
+        letter-spacing: 2.5px;
     }
 
     p {
@@ -96,11 +96,11 @@ hr {
 
     .version {
         /* Box Model */
-        padding: 10px 10px;
+        padding: 15px 15px;
     }
 
     #timer {
         /* Typography */
-        font-size: 1.2em;
+        font-size: 1.5em;
     }
 }
