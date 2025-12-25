@@ -75,3 +75,32 @@ hr {
     /* Typography */
     font-size: 1.5em;
 }
+
+/* --- Responsive Styles for Mobile --- */
+@media (max-width: 768px) {
+    .container {
+        /* Box Model */
+        width: 100%;
+    }
+
+    h1 {
+        /* Typography */
+        font-size: 3em;
+        letter-spacing: 1px;
+    }
+
+    p {
+        /* Typography */
+        font-size: 1em;
+    }
+
+    .version {
+        /* Box Model */
+        padding: 10px 10px;
+    }
+
+    #timer {
+        /* Typography */
+        font-size: 1.2em;
+    }
+}
