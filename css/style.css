@@ -86,7 +86,7 @@ hr {
     h1 {
         /* Typography */
         font-size: 3em;
-        letter-spacing: 2.5px;
+        letter-spacing: 1px;
     }
 
     p {
@@ -101,6 +101,6 @@ hr {
 
     #timer {
         /* Typography */
-        font-size: 1.5em;
+        font-size: 1.25em;
     }
 }
