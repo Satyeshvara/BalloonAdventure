@@ -90,7 +90,7 @@ hr {
     100% { opacity: 1; }
 }
 
-.deployment-text {
+.deployment-verification {
     animation: blink-animation 1s ease-in-out infinite;
 }
 
@@ -122,6 +122,6 @@ hr {
         flex-wrap: wrap;
 
         /* Typography */
-        font-size: 1.25em;
+        font-size: 1em;
     }
 }

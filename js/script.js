@@ -1,8 +1,6 @@
-// Start time set to midnight IST (GMT+0530)
 const START_TIME = new Date("January 1, 2026 00:00:00 GMT+0530").getTime();
-// End time set to 12 PM (midday) IST (GMT+0530)
 const END_TIME = new Date("January 1, 2026 12:00:00 GMT+0530").getTime();
-// Duration is now calculated dynamically (12 hours)
+
 const DURATION_MS = END_TIME - START_TIME;
 
 const progressValueElement = document.getElementById("progress-value");
