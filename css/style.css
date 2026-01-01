@@ -73,25 +73,12 @@ hr {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
 
     /* Box Model */
     margin-top: 25px;
 
     /* Typography */
     font-size: 1.5em;
-    
-    
-}
-
-@keyframes blink-animation {
-    0%   { opacity: 1; }
-    50%  { opacity: 0.5; }
-    100% { opacity: 1; }
-}
-
-.deployment-verification {
-    animation: blink-animation 1s ease-in-out infinite;
 }
 
 /* --- Responsive Styles for Mobile --- */
@@ -118,9 +105,6 @@ hr {
     }
 
     #deployment-container {
-        /* Positioning & Layout */
-        flex-wrap: wrap;
-
         /* Typography */
         font-size: 1em;
     }
