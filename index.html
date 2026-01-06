@@ -3,22 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- REDIRECT LOGIC: External Script -->
+    <script src="js/Utils/CompactDevice-Redirect.js"></script>
+
     <title>Balloon Adventure</title>
-    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Icons (For Leaderboard Arrows) -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    
+    <!-- Global Style -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Modular Home Styles -->
+    <link rel="stylesheet" href="css/Home/Navigation.css">
+    <link rel="stylesheet" href="css/Home/Settings.css">
+    <link rel="stylesheet" href="css/Home/Home.css">
+    <link rel="stylesheet" href="css/Home/Leaderboard.css">
+    <!-- NEW: Real-Time Clock Style -->
+    <link rel="stylesheet" href="css/Home/Real-TimeClock.css">
+
+    <!-- General Instructions Styles -->
+    <link rel="stylesheet" href="css/Home/GeneralInstructions.css">
+    <!-- Developer Overview Styles -->
+    <link rel="stylesheet" href="css/Home/DeveloperOverview.css">
+    
+    <!-- Gameplay Styles -->
+    <link rel="stylesheet" href="css/Gameplay/AudioVisualizer.css">
+    <link rel="stylesheet" href="css/Gameplay/HUD.css">
+
+    <!-- SECURITY ENHANCEMENT: Content Security Policy (CSP) -->
+    <meta http-equiv="Content-Security-Policy" content="
+        default-src 'self'; 
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net blob:; 
+        style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+        font-src 'self' https://fonts.gstatic.com; 
+        img-src 'self' data:; 
+        connect-src 'self' https://cdn.jsdelivr.net; 
+        media-src 'self' blob:; 
+        object-src 'none';
+        base-uri 'self';
+    ">
+    
+    <!-- Error Handling for External Libraries -->
+    <script>
+        window.mediaPipeLoadError = false;
+        function handleScriptError(e) {
+            console.warn("External Dependency Failed to Load:", e.target.src);
+            window.mediaPipeLoadError = true;
+        }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous" onerror="handleScriptError(event)"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous" onerror="handleScriptError(event)"></script>
 </head>
 <body>
-
-    <div class="container">
-        <h1>BALLOON ADVENTURE</h1>
-        <p class="version">Version 1.0</p>
-        <hr>
-        <div id="deployment-container">
-            <span class="deployment-verification">Release Date: 7 January 2026 (Extended)</span>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+        <video id="inputVideo" style="display:none;" playsinline></video>
+        
+        <!-- Unified Game HUD -->
+        <div id="ui-overlay">
+            <div id="right-hud" class="left">
+                <div id="score-board">Score: <span id="scoreVal">0</span></div>
+                <div id="accuracy-board">Real-Time Gesture Accuracy: <span id="accuracyVal">0%</span></div>
+                <div id="fps-board">FPS: <span id="fpsVal">0</span></div>
+            </div>
+            <div id="audio-visualizer"></div>
         </div>
+
+        <!-- Notification Stack (Visual Feedback Layer) -->
+        <div id="notification-stack">
+            <!-- 1. Caution Card (Top Priority) -->
+            <div id="caution-card" class="toast-card toast-hidden caution-theme">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#ea8600"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+                <span>We can’t detect your index finger. Improve the lighting and bring your index finger in front of the camera.</span>
+            </div>
+
+            <!-- 2. Privacy Toast (Standard) -->
+            <div id="toast-notification" class="toast-card">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#1a73e8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                <span>Camera data is processed locally only. We don’t store it.</span>
+                <button id="close-toast">Got it!</button>
+            </div>
+        </div>
+
+        <!-- Main Menu - INCLUDING the new overlay structure -->
+        <div id="permission-modal">
+            <header class="top-nav-bar">
+                <div class="nav-content-wrapper">
+                    <div class="title-version-group">
+                        <h1 class="main-game-title bebas-neue-regular">Balloon Adventure</h1>
+                        <p class="version">Version 1.0</p>
+                    </div>
+                    <div class="nav-buttons-group">
+                        <!-- Navigation Buttons -->
+                        <button id="instructionBtn" class="nav-btn">General Instructions</button> 
+                        <button id="overviewBtn" class="nav-btn">Developer's Overview</button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="home-layout-container">
+                <!-- Leaderboard Module -->
+                <div class="leaderboard-wrapper">
+                    
+                    <!-- Leaderboard Header -->
+                    <div class="leaderboard-header">
+                        <h2 class="leaderboard-title">Leaderboard</h2>
+                    </div>
+
+                    <!-- Scrollable Table Container -->
+                    <div class="leaderboard-table-container">
+                        <table class="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-rank">Rank</th>
+                                    <th class="col-player">Players</th>
+                                    <th class="col-score">Top Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <!-- Rows will be injected by LeaderboardManager.js -->
+                            </tbody>
+                        </table>
+                        
+                        <!-- Empty State Message -->
+                        <div id="leaderboard-empty-msg" style="display: none;">
+                            We’re getting the leaderboard ready.
+                        </div>
+                    </div>
+
+                    <!-- Pagination Controls -->
+                    <div class="leaderboard-footer">
+                        <span class="material-icons nav-arrow" id="prevSlide">chevron_left</span>
+                        <div class="pagination-dots" id="paginationDots">
+                            <span class="dot active" data-index="0"></span>
+                            <span class="dot" data-index="1"></span>
+                            <span class="dot" data-index="2"></span>
+                            <span class="dot" data-index="3"></span>
+                            <span class="dot" data-index="4"></span>
+                        </div>
+                        <span class="material-icons nav-arrow" id="nextSlide">chevron_right</span>
+                    </div>
+                </div>
+
+                <!-- Vertical Divider -->
+                <div class="layout-divider"></div>
+
+                <div class="menu-card">
+                    <h3 class="settings-label">Settings</h3>
+                    
+                    <div class="control-group">
+                        <div class="label-row">
+                            <span>Gesture Sensitivity</span>
+                            <span id="percentText">50%</span>
+                        </div>
+                        <input type="range" id="sensitivityRange" min="0" max="100" value="50">
+                    </div>
+
+                    <div class="control-group">
+                        <span class="control-label">HUD Position</span>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="hudPos" value="left" checked> Left</label>
+                            <label class="radio-label"><input type="radio" name="hudPos" value="right"> Right</label>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <span class="control-label">Background Music</span>
+                        <div class="radio-group">
+                            <label class="radio-label"><input type="radio" name="musicControl" value="on" checked> On</label>
+                            <label class="radio-label"><input type="radio" name="musicControl" value="off"> Off</label>
+                        </div>
+                    </div>
+
+                    <button id="startBtn">Start</button>
+                </div>
+            </main>
+        </div>
+
+        <!-- Pause & Game Over Overlays -->
+        <div id="pause-overlay" style="display:none;">
+            <div class="pause-card">
+                <h1>PAUSED</h1>
+                <p>Press <b>SPACEBAR</b> to Resume</p>
+                <hr>
+                <div class="gameover-buttons">
+                    <button id="pauseRestartBtn">Restart</button> 
+                    <button id="pauseHomeBtn">Home</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameover-overlay" style="display:none;">
+            <div class="gameover-card">
+                <h1 class="gameover-title">Game Over</h1>
+                <p class="subtitle">FINAL SCORE: <b id="finalScore">0</b></p>
+                <div class="gameover-buttons">
+                    <button id="restartBtn">Restart</button> 
+                    <button id="homeBtn">Home</button>
+                </div>
+            </div>
+        </div>
+
+        <audio id="background-music" src="assets/Audio/Music/SlowDancing.mp3" loop></audio>
     </div>
 
+    <!-- Main Entry Point -->
+    <script type="module" src="js/Core/main.js"></script>
+    
+    <!-- Leaderboard Logic -->
+    <script type="module" src="js/UI/LeaderboardManager.js"></script>
+    <!-- General Instructions Logic -->
+    <script type="module" src="js/UI/GeneralInstructions.js"></script>
+    <!-- Developer Overview Logic -->
+    <script type="module" src="js/UI/DeveloperOverview.js"></script>
+    <!-- NEW: Real-Time Clock Logic -->
+    <script type="module" src="js/UI/Real-TimeClock.js"></script>
 </body>
 </html>

@@ -1,0 +1,52 @@
+#permission-modal {
+    /* Position */
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    flex-direction: column;
+
+    /* Visual */
+    background: #ffffff;
+}
+
+.home-layout-container {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: stretch;
+    gap: 0px;
+
+    /* Box Model */
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    overflow: hidden;
+}
+
+.leaderboard-wrapper {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    /* Box Model */
+    width: auto;
+    height: auto;
+    max-height: 100vh;
+    margin: 25px;
+}
+
+.layout-divider {
+    /* Box Model */
+    width: 0.5px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    flex-shrink: 0;
+
+    /* Visual */
+    background-color: #D9D9D9;
+}

@@ -1,0 +1,21 @@
+{
+    "title": "General Instructions",
+    "instructions": [
+        {
+            "id": 1,
+            "text": "Ensure your webcam is enabled and the room is well-lit for accurate tracking."
+        },
+        {
+            "id": 2,
+            "text": "Raise your index finger to control the balloon. The balloon follows your finger's movement."
+        },
+        {
+            "id": 3,
+            "text": "Avoid colliding with birds. Hitting obstacles will reduce your health or end the game."
+        },
+        {
+            "id": 4,
+            "text": "Survive as long as possible to achieve a high score and climb the leaderboard."
+        }
+    ]
+}

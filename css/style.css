@@ -1,111 +1,179 @@
-body {
-    /* Positioning & Layout */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
+/* --- START OF FILE css/style.css --- */
 
-    /* Visual */
-    background-color: #000;
-    color: #fff;
-
-    /* Typography */
-    font-family: 'Roboto', sans-serif;
-    text-align: center;
+/* --- Global Design System (Variables) --- */
+:root {
+    /* --- Color Palette --- */
+    --primary-color: #216DD9;       /* Main Action Blue */
+    --primary-hover: #1D60BF;       /* Darker Blue for Hover */
+    --secondary-bg: #F2F2F2;        /* Secondary Button BG */
+    --secondary-hover: #D9D9D9;     /* Secondary Button Hover */
+    
+    --text-main: #404040;           /* Primary Text Color */
+    --text-light: #ffffff;          /* White Text */
+    --text-muted: rgba(255, 255, 255, 0.85);
+    
+    --bg-white: #ffffff;
+    --bg-dark: #404040;             /* Top Nav, Mobile Overlay */
+    --bg-off-white: #F7F7F7;        /* Settings Control Group */
+    
+    --border-color: #D9D9D9;
+    
+    /* --- Status Colors --- */
+    --danger: #F23D3D;              /* Game Over Text */
+    --warning-bg: #FFFAF2;          /* Caution Toast BG */
+    --warning-icon: #ea8600;
+    --info-icon: #1a73e8;
+    
+    /* --- Glass Morphism (HUD & Visualizer) --- */
+    --glass-bg: rgba(0, 0, 0, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-blur: 10px;
+    
+    /* --- Typography --- */
+    --font-primary: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-heading: "Bebas Neue", sans-serif;
+    --font-secondary: "Roboto", sans-serif;
+    
+    /* --- Spacing & Radius --- */
+    --radius-sm: 5px;
+    --radius-md: 10px;
+    --radius-round: 50%;
+    
+    --shadow-card: 0 3px 10px rgba(0,0,0,0.1);
+    --shadow-float: 0 10px 30px rgba(0,0,0,0.1);
 }
 
-.container {
-    /* Positioning & Layout */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+/* --- Global Resets --- */
+* { 
+    box-sizing: border-box; 
+    font-family: var(--font-primary); 
+    outline: none; 
+    font-weight: 400 !important; 
 }
 
-h1 {
-    /* Box Model */
-    margin: 0;
+/* Override global weight for requested bold elements */
+b { font-weight: 500 !important; }
 
-    /* Typography */
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 5em;
-    letter-spacing: 3px;
-    line-height: 1.25;
+body, html { 
+    margin: 0; padding: 0; overflow: hidden; 
+    background: var(--bg-white); 
+    width: 100vw; height: 100vh; 
 }
 
-p {
-    /* Box Model */
-    margin-top: 0;
-
-    /* Typography */
-    font-size: 1.25em;
+#gameCanvas { 
+    display: block; width: 100%; height: 100%; 
+    /* Fallback gradient if JS fails, though JS handles main sky */
+    background: linear-gradient(#80B5FF, #D9E9FF); 
 }
 
-.version {
-    /* Positioning & Layout */
-    display: inline-block;
-
-    /* Box Model */
-    margin-top: 10px;
-    padding: 15px 15px;
-    border-radius: 5px;
-
-    /* Visual */
-    background-color: #fff;
-    color: #000;
+/* --- UI Overlay Container --- */
+#ui-overlay { 
+    pointer-events: none; 
+    position: absolute; 
+    inset: 0; 
 }
 
-hr {
-    /* Box Model */
-    margin-top: 10px;
-    margin-bottom: 10px;
-    width: 50%;
-    height: 1px;
+/* --- Notification Stack --- */
+#notification-stack {
+    position: fixed; bottom: 25px; left: 25px; z-index: 200;
+    display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none;
+    align-items: flex-start;
+}
+
+/* Base styles for all toast cards */
+.toast-card {
+    background: var(--bg-white); 
+    border: 1px solid var(--border-color); 
+    padding: 15px 15px; 
+    border-radius: var(--radius-sm);
+    display: flex; align-items: flex-start;
+    gap: 10px; pointer-events: auto;
+    box-shadow: var(--shadow-card); 
+    font-size: 15px; 
+    color: var(--text-main);
+}
+
+/* --- Dedicated Notification Styles --- */
+/* Cleaned up: Removed #cache-toast selector */
+#toast-notification {
+    height: 50px; 
+    align-items: center; 
+    white-space: nowrap; 
+}
+
+#caution-card {
+    max-width: 1000px; 
+}
+
+.caution-theme { background: var(--warning-bg); }
+.toast-hidden { display: none !important; }
+
+/* Groups Close Buttons */
+/* Cleaned up: Removed #close-cache-toast selector */
+#close-toast { 
+    background: transparent; 
+    color: var(--primary-color); 
+    border: none; 
+    cursor: pointer; 
+    padding: 5px; 
+    font-size: 15px; 
+}
+
+/* --- Overlays --- */
+#pause-overlay, #gameover-overlay { 
+    position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; 
+    z-index: 100; backdrop-filter: blur(3px); background: rgba(255, 255, 255, 0);
+}
+
+.pause-card, .gameover-card { 
+    background: var(--bg-white); 
+    padding: 50px 100px; 
+    border-radius: var(--radius-md); 
+    text-align: center; border: none; 
+    box-shadow: var(--shadow-float);
+}
+
+.pause-card hr {
     border: none;
-
-    /* Visual */
-    background-color: #fff;
+    height: 1px;
+    background-color: var(--border-color);
+    margin: 25px 0;
 }
 
-#deployment-container {
-    /* Positioning & Layout */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.gameover-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 25px; }
 
-    /* Box Model */
-    margin-top: 25px;
-
-    /* Typography */
-    font-size: 1.5em;
+.pause-card .gameover-buttons {
+    margin-top: 0;
 }
 
-/* --- Responsive Styles for Mobile --- */
-@media (max-width: 768px) {
-    .container {
-        /* Box Model */
-        width: 100%;
-    }
-
-    h1 {
-        /* Typography */
-        font-size: 3em;
-        letter-spacing: 1px;
-    }
-
-    p {
-        /* Typography */
-        font-size: 1em;
-    }
-
-    .version {
-        /* Box Model */
-        padding: 10px 10px;
-    }
-
-    #deployment-container {
-        /* Typography */
-        font-size: 1em;
-    }
+.gameover-title {
+    font-weight: 500 !important; 
+    font-size: 3rem; 
+    color: var(--danger);
+    margin: 0 0 10px 0; text-transform: uppercase;
 }
+
+.subtitle { color: var(--text-main); font-size: 15px; }
+
+/* Home and Restart Buttons */
+#restartBtn, #pauseRestartBtn { 
+    width: auto; min-width: 150px; padding: 15px 15px; font-size: 15px; 
+    color: var(--text-light); 
+    background: var(--primary-color); 
+    border: none; 
+    border-radius: var(--radius-sm); 
+    cursor: pointer; transition: background 0.3s ease;
+}
+
+#restartBtn:hover, #pauseRestartBtn:hover { background: var(--primary-hover); }
+
+#homeBtn, #pauseHomeBtn { 
+    width: auto; min-width: 150px; padding: 15px 15px; font-size: 15px; 
+    color: #404040; 
+    background: var(--secondary-bg); 
+    border: none; 
+    border-radius: var(--radius-sm); 
+    cursor: pointer; transition: background 0.3s ease;
+}
+
+#homeBtn:hover, #pauseHomeBtn:hover { background: var(--secondary-hover); }

@@ -1,0 +1,76 @@
+#right-hud {
+	/* Position */
+	position: absolute;
+	z-index: 10;
+	top: 25px;
+	
+	/* Layout (Flexbox / Grid) */
+	display: flex;
+	flex-direction: column;
+	
+	/* Box Model */
+	min-width: 300px;
+	padding: 5px 5px;
+	border: none;
+	border-radius: 10px;
+	
+	/* Typography */
+	color: #ffffff;
+	
+	/* Visual */
+	background: rgba(0, 0, 0, 0.1);
+	
+	/* Effects & Animation */
+	backdrop-filter: blur(10px) saturate(100%);
+	-webkit-backdrop-filter: blur(10px) saturate(100%);
+}
+
+#right-hud.left {
+	/* Position */
+	right: auto;
+	left: 25px;
+}
+
+#right-hud.right {
+	/* Position */
+	left: auto;
+	right: 25px;
+}
+
+#score-board,
+#accuracy-board,
+#fps-board {
+	/* Layout (Flexbox / Grid) */
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 25px;
+	
+	/* Box Model */
+	padding: 15px 15px;
+}
+
+#score-board,
+#accuracy-board {
+	/* Box Model */
+	border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+#score-board {
+	/* Typography */
+	font-size: 25px;
+}
+
+#accuracy-board,
+#fps-board {
+	/* Typography */
+	font-size: 15px;
+	color: rgba(255, 255, 255, 0.85);
+}
+
+#accuracyVal,
+#scoreVal,
+#fpsVal {
+	/* Typography */
+	font-variant-numeric: tabular-nums;
+}

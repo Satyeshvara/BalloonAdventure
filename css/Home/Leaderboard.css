@@ -1,0 +1,277 @@
+.leaderboard-wrapper {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    flex-direction: column;
+
+    /* Box Model */
+    padding: 25px;
+    border: 1px solid #D9D9D9;
+
+    /* Typography */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #404040;
+
+    /* Visual */
+    background: #ffffff !important;
+    border-radius: 10px;
+    box-shadow: 0 3px 15px rgba(0,0,0,0.1);
+}
+
+.leaderboard-header {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    /* Box Model */
+    margin-bottom: 10px;
+    padding-bottom: 25px;
+    border-bottom: 1px solid #D9D9D9;
+}
+
+.leaderboard-title {
+    /* Box Model */
+    margin: 0;
+
+    /* Typography */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 25px;
+    color: #404040;
+}
+
+.leaderboard-table-container {
+    /* Position */
+    position: relative;
+
+    /* Layout (Flexbox / Grid) */
+    flex: 1;
+
+    /* Box Model */
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    /* Visual */
+    scrollbar-width: 5px;
+    scrollbar-color: #D9D9D9 #F7F7F7;
+}
+
+.leaderboard-table-container::-webkit-scrollbar {
+    /* Box Model */
+    width: 5px;
+}
+
+.leaderboard-table-container::-webkit-scrollbar-track {
+    /* Visual */
+    background: #F7F7F7;
+    border-radius: 3px;
+}
+
+.leaderboard-table-container::-webkit-scrollbar-thumb {
+    /* Visual */
+    background-color: #D9D9D9;
+    border-radius: 3px;
+}
+
+.leaderboard-table-container::-webkit-scrollbar-thumb:hover {
+    /* Visual */
+    background-color: #BFBFBF;
+}
+
+.leaderboard-table {
+    /* Box Model */
+    width: 100%;
+
+    /* Visual */
+    border-collapse: collapse;
+}
+
+.leaderboard-table th {
+    /* Position */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    /* Box Model */
+    padding: 15px 15px;
+
+    /* Typography */
+    font-size: 15px;
+    font-weight: 500 !important;
+    color: #404040;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    /* Visual */
+    background-color: #F2F2F2;
+}
+
+.leaderboard-table td {
+    /* Box Model */
+    padding: 15px 15px;
+    border-bottom: 1px solid #F2F2F2;
+
+    /* Typography */
+    font-size: 15px;
+    color: #404040;
+    white-space: nowrap;
+}
+
+.col-rank {
+    /* Box Model */
+    width: 25%;
+
+    /* Typography */
+    text-align: center;
+}
+
+.col-player {
+    /* Box Model */
+    width: 50%;
+
+    /* Typography */
+    text-align: center;
+}
+
+.col-score {
+    /* Box Model */
+    width: 25%;
+
+    /* Typography */
+    text-align: center;
+    font-weight: 700 !important;
+    color: #404040;
+}
+
+#leaderboard-empty-msg {
+    /* Position */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    /* Box Model */
+    width: 100%;
+
+    /* Typography */
+    font-size: 15px;
+    color: #808080;
+    text-align: center;
+
+    /* Effects & Animation */
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.leaderboard-footer {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    /* Box Model */
+    margin-top: 10px;
+    padding-top: 25px;
+    border-top: 1px solid #D9D9D9;
+}
+
+.nav-arrow {
+    /* Box Model */
+    padding: 10px;
+
+    /* Typography */
+    font-size: 25px;
+    color: #404040;
+    user-select: none;
+
+    /* Visual */
+    cursor: pointer;
+    border-radius: 50%;
+
+    /* Effects & Animation */
+    transition: color 0.1s ease, transform 0.1s ease;
+}
+
+.nav-arrow:hover {
+    /* Typography */
+    color: #404040;
+
+    /* Visual */
+    background-color: #F2F2F2;
+}
+
+.nav-arrow:active {
+    /* Effects & Animation */
+    transform: scale(0.9);
+}
+
+.pagination-dots {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    gap: 10px;
+}
+
+.dot {
+    /* Box Model */
+    width: 10px;
+    height: 10px;
+
+    /* Visual */
+    background-color: #D9D9D9;
+    border-radius: 50%;
+    cursor: pointer;
+
+    /* Effects & Animation */
+    transition: background-color 0.3s ease;
+}
+
+.dot:hover {
+    /* Visual */
+    background-color: #D9D9D9;
+}
+
+.dot.active {
+    /* Visual */
+    background-color: #404040;
+
+    /* Effects & Animation */
+    transform: scale(1.25);
+}
+
+.dot.active:hover {
+    /* Visual */
+    background-color: #404040;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.anim-next {
+    /* Effects & Animation */
+    animation: slideInRight 0.3s ease-out forwards;
+}
+
+.anim-prev {
+    /* Effects & Animation */
+    animation: slideInLeft 0.3s ease-out forwards;
+}

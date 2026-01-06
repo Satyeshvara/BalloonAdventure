@@ -1,0 +1,97 @@
+.top-nav-bar {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+
+    /* Box Model */
+    width: 100%;
+    height: 100px;
+
+    /* Visual */
+    background: #404040;
+}
+
+.nav-content-wrapper {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    /* Box Model */
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 25px;
+}
+
+.title-version-group {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.main-game-title {
+    /* Box Model */
+    margin: 0;
+
+    /* Typography */
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 3rem;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+.bebas-neue-regular {
+    /* Typography */
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.version {
+    /* Box Model */
+    padding: 10px;
+
+    /* Typography */
+    font-family: "Roboto", sans-serif;
+    color: #404040;
+
+    /* Visual */
+    background-color: #ffffff;
+    border-radius: 5px;
+}
+
+.nav-buttons-group {
+    /* Layout (Flexbox / Grid) */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-btn {
+    /* Box Model */
+    padding: 15px;
+    border: none;
+
+    /* Typography */
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+
+    /* Visual */
+    background-color: transparent;
+    border-radius: 5px;
+    cursor: pointer;
+
+    /* Effects & Animation */
+    transition: background-color 0.3s ease;
+}
+
+.nav-btn:hover {
+    /* Visual */
+    background-color: #595959;
+}

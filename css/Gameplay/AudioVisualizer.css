@@ -1,0 +1,43 @@
+#audio-visualizer {
+    /* Position */
+    position: absolute;
+    z-index: 10;
+    right: 25px;
+    bottom: 25px;
+
+    /* Layout (Flexbox / Grid) */
+    display: none;
+    align-items: flex-end;
+    gap: 3px;
+
+    /* Box Model */
+    width: 150px;
+    height: 100px;
+    padding: 25px;
+    box-sizing: content-box;
+
+    /* Visual */
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+
+    /* Effects & Animation */
+    backdrop-filter: blur(10px) saturate(100%);
+    -webkit-backdrop-filter: blur(10px) saturate(100%);
+}
+
+.vis-bar {
+    /* Layout (Flexbox / Grid) */
+    flex-grow: 1;
+
+    /* Box Model */
+    width: 5px;
+    height: 5%;
+
+    /* Visual */
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 0;
+
+    /* Effects & Animation */
+    transition: height 0.1s linear;
+}
