@@ -13,7 +13,7 @@
     background-color: rgba(0, 0, 0, 0.1);
 
     /* Effects & Animation */
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(2.5px);
 }
 
 #instructions-overlay.visible {

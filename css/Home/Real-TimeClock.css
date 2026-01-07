@@ -23,7 +23,7 @@
     pointer-events: auto;
 
     /* Effects & Animation */
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(2.5px);
 }
 
 #rtc-time {

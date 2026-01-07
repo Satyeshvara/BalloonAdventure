@@ -1,7 +1,7 @@
 #audio-visualizer {
     /* Position */
     position: absolute;
-    z-index: 10;
+    z-index: 50;
     right: 25px;
     bottom: 25px;
 
@@ -22,8 +22,8 @@
     border-radius: 10px;
 
     /* Effects & Animation */
-    backdrop-filter: blur(10px) saturate(100%);
-    -webkit-backdrop-filter: blur(10px) saturate(100%);
+    backdrop-filter: blur(2.5px) saturate(100%);
+    -webkit-backdrop-filter: blur(2.5px) saturate(100%);
 }
 
 .vis-bar {

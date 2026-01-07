@@ -2,6 +2,9 @@
     File: js/Core/GameConfigurationManager.js
     Description: Centralized, immutable repository for all game constants.
     Security: Uses Object.freeze to prevent runtime modification.
+    
+    UPDATES:
+    - Added 'AI_MONITORING' configuration for Latency Check & Auto-Fallback.
 */
 
 export const GameConfig = Object.freeze({
@@ -77,5 +80,16 @@ export const GameConfig = Object.freeze({
         LIFE_SPAN_VAR: 20, // Variance in life span
         // Vibrant colors for visual polish
         COLORS: ['#FF5733', '#33FF57', '#3357FF', '#F3FF33', '#FF33F3']
+    },
+
+    // --- NEW: AI Health Monitoring Configuration ---
+    AI_MONITORING: {
+        MAX_LATENCY_MS: 150,       // Latency value that equals 100% stress (approx 6-7 FPS)
+        WATCHDOG_INTERVAL: 500,    // How often to check AI status (ms)
+        WATCHDOG_TIMEOUT: 2000,    // Time without response before forcing reset/fallback (ms)
+        
+        // Fallback Logic
+        CRITICAL_STRESS_THRESHOLD: 90, // % stress to start counting down fallback
+        AUTO_FALLBACK_DURATION: 3000   // Duration of critical stress (ms) before switching input
     }
 });

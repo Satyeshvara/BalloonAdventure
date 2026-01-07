@@ -25,7 +25,6 @@
     <link rel="stylesheet" href="css/Home/Settings.css">
     <link rel="stylesheet" href="css/Home/Home.css">
     <link rel="stylesheet" href="css/Home/Leaderboard.css">
-    <!-- NEW: Real-Time Clock Style -->
     <link rel="stylesheet" href="css/Home/Real-TimeClock.css">
 
     <!-- General Instructions Styles -->
@@ -69,11 +68,35 @@
         
         <!-- Unified Game HUD -->
         <div id="ui-overlay">
-            <div id="right-hud" class="left">
-                <div id="score-board">Score: <span id="scoreVal">0</span></div>
-                <div id="accuracy-board">Real-Time Gesture Accuracy: <span id="accuracyVal">0%</span></div>
-                <div id="fps-board">FPS: <span id="fpsVal">0</span></div>
+            
+            <!-- Module 1 - Primary Score Container -->
+            <div id="hud-score-container" class="hud-container left">
+                <div id="score-board">Score <span id="scoreVal">0</span></div>
             </div>
+
+            <!-- RESTRUCTURED: Module 2 - Status Monitor (Renamed from hud-stats-container) -->
+            <!-- Updated Sequence: AI Latency -> Accuracy -> FPS -->
+            <div id="statusMonitor" class="hud-container left">
+                
+                <!-- 1. AI Operation Latency (Top Priority) -->
+                <div id="ai-stress-card" class="stress-card">
+                    <div class="stress-header">
+                        <span class="stress-label">AI Operation Latency</span>
+                        <span id="stressVal" class="stress-value">0%</span>
+                    </div>
+                    <div class="stress-track">
+                        <div id="stressFill" class="stress-bar"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Real-Time Gesture Accuracy -->
+                <div id="accuracy-board">Real-Time Gesture Accuracy <span id="accuracyVal">0%</span></div>
+                
+                <!-- 3. FPS -->
+                <div id="fps-board">FPS <span id="fpsVal">0</span></div>
+
+            </div>
+
             <div id="audio-visualizer"></div>
         </div>
 
@@ -93,7 +116,7 @@
             </div>
         </div>
 
-        <!-- Main Menu - INCLUDING the new overlay structure -->
+        <!-- Main Menu -->
         <div id="permission-modal">
             <header class="top-nav-bar">
                 <div class="nav-content-wrapper">
@@ -102,7 +125,6 @@
                         <p class="version">Version 1.0</p>
                     </div>
                     <div class="nav-buttons-group">
-                        <!-- Navigation Buttons -->
                         <button id="instructionBtn" class="nav-btn">General Instructions</button> 
                         <button id="overviewBtn" class="nav-btn">Developer's Overview</button>
                     </div>
@@ -112,13 +134,9 @@
             <main class="home-layout-container">
                 <!-- Leaderboard Module -->
                 <div class="leaderboard-wrapper">
-                    
-                    <!-- Leaderboard Header -->
                     <div class="leaderboard-header">
                         <h2 class="leaderboard-title">Leaderboard</h2>
                     </div>
-
-                    <!-- Scrollable Table Container -->
                     <div class="leaderboard-table-container">
                         <table class="leaderboard-table">
                             <thead>
@@ -129,17 +147,13 @@
                                 </tr>
                             </thead>
                             <tbody id="leaderboard-body">
-                                <!-- Rows will be injected by LeaderboardManager.js -->
+                                <!-- Rows by LeaderboardManager -->
                             </tbody>
                         </table>
-                        
-                        <!-- Empty State Message -->
                         <div id="leaderboard-empty-msg" style="display: none;">
                             We’re getting the leaderboard ready.
                         </div>
                     </div>
-
-                    <!-- Pagination Controls -->
                     <div class="leaderboard-footer">
                         <span class="material-icons nav-arrow" id="prevSlide">chevron_left</span>
                         <div class="pagination-dots" id="paginationDots">
@@ -153,7 +167,6 @@
                     </div>
                 </div>
 
-                <!-- Vertical Divider -->
                 <div class="layout-divider"></div>
 
                 <div class="menu-card">
@@ -217,14 +230,9 @@
 
     <!-- Main Entry Point -->
     <script type="module" src="js/Core/main.js"></script>
-    
-    <!-- Leaderboard Logic -->
     <script type="module" src="js/UI/LeaderboardManager.js"></script>
-    <!-- General Instructions Logic -->
     <script type="module" src="js/UI/GeneralInstructions.js"></script>
-    <!-- Developer Overview Logic -->
     <script type="module" src="js/UI/DeveloperOverview.js"></script>
-    <!-- NEW: Real-Time Clock Logic -->
     <script type="module" src="js/UI/Real-TimeClock.js"></script>
 </body>
 </html>

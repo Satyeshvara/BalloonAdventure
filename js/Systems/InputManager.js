@@ -1,14 +1,17 @@
+/* --- START OF FILE js/Systems/InputManager.js --- */
+
 /*
     File: js/Systems/InputManager.js
     Description: Manages input via MediaPipe Hands (Primary) or Mouse/Touch (Fallback).
-                 Implements strict lifecycle management and communicates via EventManager.
+                 Implements strict lifecycle management, AI Stress Monitoring, and Back-pressure prevention.
                  
-    UPDATES (Security Patch): 
-    - Implemented Offline/CDN Failure Check.
-    - Added Graceful Degradation to Mouse Mode if Hands API is missing.
+    Refactor Status:
+    - FIXED: Watchdog now emits 100% Stress Event before Fallback (Fixes Silent Crash).
+    - REFINED: Optimized Error Handling to sync with HUD Critical Failure state.
 */
 
 import { eventBus, EVENTS } from '../Core/EventManager.js';
+import { GameConfig } from '../Core/GameConfigurationManager.js';
 
 export class InputManager {
     constructor(videoElement) {
@@ -20,8 +23,16 @@ export class InputManager {
         this.inputType = 'NONE'; // 'CAMERA', 'MOUSE', 'NONE'
         this.isInitialized = false; 
         
-        // --- Loop Control (The Zombie Killer) ---
+        // --- Loop Control ---
         this.currentLoopId = 0; // Unique ID for the active tracking loop
+
+        // --- Back-pressure & Monitoring ---
+        this.isProcessing = false; // The Gatekeeper Flag
+        this.lastFrameTime = 0;    // Timestamp of current frame start
+        this.watchdogInterval = null;
+        
+        // --- Auto-Fallback State ---
+        this.criticalStressStartTime = 0; // Timestamp when stress first exceeded 90%
 
         // --- Coordinates ---
         this.targetY = 0.5;
@@ -68,12 +79,11 @@ export class InputManager {
 
     /**
      * Helper: Hard Resets the MediaPipe AI Instance.
-     * Wrapped in Try-Catch for Fault Tolerance.
      */
     _hardResetAI() {
         if (this.hands) {
             try {
-                this.hands.close(); // Critical: Frees GPU memory
+                this.hands.close(); 
             } catch (e) {
                 console.warn("[InputManager] Error closing old Hands instance:", e);
             }
@@ -82,24 +92,20 @@ export class InputManager {
 
         console.log("[InputManager] Initializing Fresh AI Instance...");
         
-        // DEFENSIVE CODING:
-        // Even if the class exists, instantiation might fail (e.g., WebAssembly error)
         try {
-            // Global 'Hands' object comes from the CDN script in index.html
             this.hands = new Hands({ 
                 locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${f}` 
             });
 
             this.hands.setOptions({ 
                 maxNumHands: 1, 
-                modelComplexity: 0, // 0 = Faster (Lite), 1 = Full
+                modelComplexity: 0, 
                 minDetectionConfidence: 0.5, 
                 minTrackingConfidence: 0.5 
             });
 
             this.hands.onResults(this.handleResults.bind(this));
         } catch (error) {
-            // Re-throw to be caught by init() fallback logic
             throw new Error(`MediaPipe Instantiation Failed: ${error.message}`);
         }
     }
@@ -110,8 +116,6 @@ export class InputManager {
     async init() {
         if (this.isInitialized) return;
 
-        // --- CRITICAL CHECK: EXTERNAL DEPENDENCY VALIDATION ---
-        // Check if CDN loaded correctly using the flag from index.html OR standard type check
         if (typeof Hands === 'undefined' || window.mediaPipeLoadError) {
             console.warn("[InputManager] External Dependency Failed (Offline/CDN). Forcing Mouse Mode.");
             this.enableFallbackMode();
@@ -119,14 +123,13 @@ export class InputManager {
         }
 
         try {
-            this._hardResetAI(); // Initial Setup
+            this._hardResetAI(); 
             await this.startCamera();
             
             this.inputType = 'CAMERA';
             this.isInitialized = true;
             this.consecutiveErrors = 0;
             
-            // Broadcast Success
             eventBus.emit(EVENTS.INPUT_MODE_CHANGED, 'CAMERA_INIT');
 
         } catch (error) {
@@ -152,50 +155,53 @@ export class InputManager {
             this.video.onerror = reject;
         });
 
-        // Strict Validation: Ensure video actually has data
         if (this.video.videoWidth === 0 || this.video.videoHeight === 0) {
             throw new Error("Video stream active but contains no data (Black Frame).");
         }
     }
 
+    /**
+     * Activates Fallback Mode (Mouse Control).
+     * Stops Watchdog and AI loops.
+     */
     enableFallbackMode() {
         if (this.inputType === 'MOUSE') return;
 
         console.log("[InputManager] Activating Fallback Mode & Background Recovery...");
+        
+        // Stop Watchdog
+        if (this.watchdogInterval) clearInterval(this.watchdogInterval);
+        this.watchdogInterval = null;
+        
         this.inputType = 'MOUSE';
         this.isInitialized = true; 
+        this.isProcessing = false;
         
         this._stopCameraStream();
-        
-        // Kill zombie loops by incrementing ID
         this.currentLoopId++; 
 
-        // Broadcast Fallback Event
+        // CRITICAL UPDATE: 
+        // Emitting this event now triggers the "Critical Failure" red pulse in HUD.js
         eventBus.emit(EVENTS.INPUT_MODE_CHANGED, 'MOUSE_FALLBACK');
         
-        // Force status update to hide "Hand Not Found" UI immediately
+        // Mouse is 100% accurate by definition
         eventBus.emit(EVENTS.GESTURE_ACCURACY, 100); 
 
-        // Only attempt recovery if MediaPipe is actually loaded.
-        // If it failed to load entirely, recovery is impossible without page reload.
+        // Start Recovery if possible
         if (typeof Hands !== 'undefined' && !window.mediaPipeLoadError) {
             this._startRecoveryMechanism();
-        } else {
-            console.log("[InputManager] Recovery disabled due to missing dependencies.");
         }
     }
 
     _startRecoveryMechanism() {
         if (this.recoveryInterval) clearInterval(this.recoveryInterval);
         
-        // Passive check every 5 seconds to see if camera is back
         this.recoveryInterval = setInterval(async () => {
             await this._attemptRecovery();
         }, this.RECOVERY_DELAY);
     }
 
     async _attemptRecovery() {
-        // Stop checks if we are already back in Camera mode
         if (this.inputType === 'CAMERA') {
             clearInterval(this.recoveryInterval);
             this.recoveryInterval = null;
@@ -207,13 +213,15 @@ export class InputManager {
             this._hardResetAI();
 
             if (this.video && this.video.readyState >= 2) {
-                // Process one dummy frame to verify pipeline
+                // Initial dummy send
+                this.isProcessing = true;
                 await this.hands.send({ image: this.video });
+                this.isProcessing = false;
                 this.restoreCameraMode();
             }
         } catch (e) {
-            // Quiet fail, clean up and wait for next interval
             this._stopCameraStream();
+            this.isProcessing = false;
         }
     }
 
@@ -227,54 +235,148 @@ export class InputManager {
 
         this.inputType = 'CAMERA';
         this.consecutiveErrors = 0;
+        this.criticalStressStartTime = 0;
 
         eventBus.emit(EVENTS.INPUT_MODE_CHANGED, 'CAMERA_RESTORE');
-
         this.startTracking();
     }
 
     /**
-     * Processes AI results from MediaPipe.
+     * Internal Logic: Calculates 'Hybrid Stress'
+     * Takes the MAXIMUM of Latency Stress (Time) and Error Stress (Instability).
+     */
+    _calculateHybridStress(latency) {
+        const { MAX_LATENCY_MS } = GameConfig.AI_MONITORING;
+        
+        // 1. Latency Stress (Speed)
+        const latencyStress = Math.min(100, (latency / MAX_LATENCY_MS) * 100);
+        
+        // 2. Error Stress (Stability)
+        const errorStress = Math.min(100, (this.consecutiveErrors / this.MAX_ERRORS) * 100);
+        
+        // Return worst-case scenario
+        return Math.max(latencyStress, errorStress);
+    }
+
+    /**
+     * Processes AI results. 
      */
     handleResults(res) {
         if (this.inputType !== 'CAMERA') return;
 
-        this.consecutiveErrors = 0;
+        // 1. End Latency Measurement
+        const now = performance.now();
+        const latency = now - this.lastFrameTime;
         
+        // 2. Unlock Gatekeeper
+        this.isProcessing = false; 
+        
+        // Reset errors on success
+        this.consecutiveErrors = 0;
+
+        // 3. Calculate Hybrid Stress (Purely latency here, as errors are 0)
+        const stress = this._calculateHybridStress(latency);
+        eventBus.emit(EVENTS.AI_STRESS_UPDATED, stress);
+
+        // 4. Check Critical Stress Duration (Auto-Fallback)
+        const { CRITICAL_STRESS_THRESHOLD, AUTO_FALLBACK_DURATION } = GameConfig.AI_MONITORING;
+        
+        if (stress > CRITICAL_STRESS_THRESHOLD) {
+            if (this.criticalStressStartTime === 0) {
+                this.criticalStressStartTime = now;
+            } else if (now - this.criticalStressStartTime > AUTO_FALLBACK_DURATION) {
+                console.warn("[InputManager] Sustained High Stress (Auto-Fallback Triggered).");
+                this.enableFallbackMode();
+                return;
+            }
+        } else {
+            this.criticalStressStartTime = 0; 
+        }
+
+        // 5. Standard Tracking Logic
         if (res.multiHandLandmarks && res.multiHandLandmarks.length > 0) {
             const conf = res.multiHandedness[0].score;
-            
-            // Broadcast Accuracy for HUD
             eventBus.emit(EVENTS.GESTURE_ACCURACY, Math.round(conf * 100));
 
             if (conf > 0.35) {
-                const yCoord = res.multiHandLandmarks[0][8].y; // Index finger tip
-                const minB = 0.3, maxB = 0.7; // Active area bounds
+                const yCoord = res.multiHandLandmarks[0][8].y; 
+                const minB = 0.3, maxB = 0.7; 
                 this.targetY = Math.max(0, Math.min(1, (yCoord - minB) / (maxB - minB)));
             }
         } else {
-            // Hand lost
             eventBus.emit(EVENTS.GESTURE_ACCURACY, 0);
         }
     }
 
+    /**
+     * Starts the Tracking Loop and the Watchdog.
+     */
     startTracking() {
         if (this.inputType === 'CAMERA') {
             this.currentLoopId++;
+            this._startWatchdog();
             this._cameraLoop(this.currentLoopId);
         }
     }
 
+    /**
+     * Watchdog: Monitors 'isProcessing'. 
+     * If true for too long, AI is hung.
+     */
+    _startWatchdog() {
+        if (this.watchdogInterval) clearInterval(this.watchdogInterval);
+        const { WATCHDOG_INTERVAL, WATCHDOG_TIMEOUT } = GameConfig.AI_MONITORING;
+        
+        this.watchdogInterval = setInterval(() => {
+            // If processing is locked AND time elapsed > timeout
+            if (this.isProcessing && (performance.now() - this.lastFrameTime > WATCHDOG_TIMEOUT)) {
+                console.warn("[InputManager] Watchdog Triggered: AI Hung. Forcing Fallback.");
+                
+                // BUG-01 FIX: Explicitly signal 100% stress so UI records the spike before fallback
+                eventBus.emit(EVENTS.AI_STRESS_UPDATED, 100);
+                
+                this.enableFallbackMode();
+            }
+        }, WATCHDOG_INTERVAL);
+    }
+
+    /**
+     * The Tracking Loop with Back-pressure Prevention.
+     */
     async _cameraLoop(loopId) {
-        // Stop if loop ID changed (Zombie Killer) or mode changed
-        if (loopId !== this.currentLoopId) return;
-        if (this.inputType !== 'CAMERA') return;
+        if (loopId !== this.currentLoopId || this.inputType !== 'CAMERA') return;
+
+        // BACK-PRESSURE CHECK & HYBRID STRESS UPDATE:
+        if (this.isProcessing) {
+            const now = performance.now();
+            const pendingLatency = now - this.lastFrameTime;
+            
+            // Calculate Hybrid Stress
+            const stress = this._calculateHybridStress(pendingLatency);
+            
+            eventBus.emit(EVENTS.AI_STRESS_UPDATED, stress);
+
+            requestAnimationFrame(() => this._cameraLoop(loopId));
+            return;
+        }
 
         if (this.video && this.video.readyState >= 2) {
             try {
+                // Lock Gatekeeper
+                this.isProcessing = true;
+                this.lastFrameTime = performance.now();
+                
                 await this.hands.send({ image: this.video });
+
             } catch (e) {
+                this.isProcessing = false; // Unlock on error
                 this.consecutiveErrors++;
+
+                // IMMEDIATE FEEDBACK:
+                // Calculate stress based on new Error Count immediately.
+                const stress = this._calculateHybridStress(0);
+                eventBus.emit(EVENTS.AI_STRESS_UPDATED, stress);
+
                 if (this.consecutiveErrors > this.MAX_ERRORS) {
                     this.enableFallbackMode();
                     return; 
@@ -285,10 +387,6 @@ export class InputManager {
         requestAnimationFrame(() => this._cameraLoop(loopId));
     }
 
-    /**
-     * Public API: Returns the current smoothed Y position (0.0 to 1.0).
-     * Used by Main.js game loop.
-     */
     getY() {
         let rawInput;
         if (this.inputType === 'CAMERA') {
@@ -296,7 +394,6 @@ export class InputManager {
         } else {
             rawInput = this.mouseY;
         }
-        // Smooth interpolation
         this.smoothedY = (rawInput * 0.22) + (this.smoothedY * 0.78);
         return this.smoothedY;
     }

@@ -2,6 +2,9 @@
     File: js/Core/EventManager.js
     Description: Robust Pub/Sub system with memory-leak protection.
     Pattern: Singleton Observer
+    
+    UPDATES:
+    - Added 'AI_STRESS_UPDATED' event constant for AI Health Monitoring.
 */
 
 class EventManager {
@@ -91,5 +94,8 @@ export const EVENTS = {
     
     // System/Input
     INPUT_MODE_CHANGED: 'INPUT_MODE_CHANGED', // 'CAMERA' or 'MOUSE'
-    GESTURE_ACCURACY: 'GESTURE_ACCURACY'
+    GESTURE_ACCURACY: 'GESTURE_ACCURACY',
+    
+    // AI Monitoring (NEW)
+    AI_STRESS_UPDATED: 'AI_STRESS_UPDATED'
 };
