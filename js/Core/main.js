@@ -1,7 +1,7 @@
 /*
     File: js/Core/main.js
     Description: The Main Orchestrator.
-    Refactor Status: Fixed Dependency Injection for AI Stress Meter & Split HUD Containers.
+    Refactor Status: Integrated UpdateManager for Patch Notes & Version Control.
 */
 
 // --- Import Core Modules ---
@@ -12,6 +12,9 @@ import { gameLoopManager } from './GameLoopManager.js';
 import { obstacleManager } from './ObstacleManager.js';
 import { environmentManager } from './EnvironmentManager.js';
 import { uiManager } from './UIManager.js';
+
+// --- NEW IMPORT: Update Manager ---
+import { UpdateManager } from '../Utils/UpdateManager.js';
 
 // --- Import Systems ---
 import { InputManager } from '../Systems/InputManager.js';
@@ -284,19 +287,31 @@ window.addEventListener('keydown', function (e) {
     }
 });
 
-// --- Initialization ---
+// --- Initialization & Update Check ---
 
-function initApp() {
-    uiManager.init(); // Now hides HUD on load
+async function initApp() {
+    // 1. UPDATE CHECK FIRST
+    // This logic runs before any game initialization.
+    // If an update is detected, it shows the overlay and halts execution.
+    const updateMgr = new UpdateManager();
+    const hasUpdate = await updateMgr.checkForUpdates();
+
+    if (hasUpdate) {
+        console.log("[Main] Update pending. Halting initialization.");
+        return; 
+    }
+
+    // 2. Normal Initialization (Only if no updates)
+    uiManager.init(); 
     persistenceManager.load();
     
-    // 1. Sync Settings
+    // Sync Settings (This will now run safely thanks to UIManager Fix)
     const settings = persistenceManager.getSettings();
     uiManager.syncSettings(settings);
     
     console.log("[Main] Persistence synced successfully.");
 
-    // 2. Bind Actions
+    // Bind Actions
     uiManager.bindActions({
         onStart: onStartAction,
         onRestart: onRestartAction,
@@ -310,7 +325,7 @@ function initApp() {
         onHud: (pos) => persistenceManager.updateSetting('hudPosition', pos)
     });
     
-    // 3. Init Environment
+    // Init Environment
     environmentManager.init(cvs, ctx); 
 }
 

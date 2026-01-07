@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
+    <!-- 1. CACHE CONTROL: Force Browser to Revalidate (Prevents stale code issues) -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
     <!-- REDIRECT LOGIC: External Script -->
     <script src="js/Utils/CompactDevice-Redirect.js"></script>
 
@@ -35,6 +40,9 @@
     <!-- Gameplay Styles -->
     <link rel="stylesheet" href="css/Gameplay/AudioVisualizer.css">
     <link rel="stylesheet" href="css/Gameplay/HUD.css">
+
+    <!-- 2. UPDATE SYSTEM STYLE: Overlay for Patch Notes -->
+    <link rel="stylesheet" href="css/Utils/Update.css">
 
     <!-- SECURITY ENHANCEMENT: Content Security Policy (CSP) -->
     <meta http-equiv="Content-Security-Policy" content="
@@ -74,11 +82,10 @@
                 <div id="score-board">Score <span id="scoreVal">0</span></div>
             </div>
 
-            <!-- RESTRUCTURED: Module 2 - Status Monitor (Renamed from hud-stats-container) -->
-            <!-- Updated Sequence: AI Latency -> Accuracy -> FPS -->
+            <!-- Module 2 - Status Monitor -->
             <div id="statusMonitor" class="hud-container left">
                 
-                <!-- 1. AI Operation Latency (Top Priority) -->
+                <!-- 1. AI Operation Latency -->
                 <div id="ai-stress-card" class="stress-card">
                     <div class="stress-header">
                         <span class="stress-label">AI Operation Latency</span>
@@ -100,15 +107,15 @@
             <div id="audio-visualizer"></div>
         </div>
 
-        <!-- Notification Stack (Visual Feedback Layer) -->
+        <!-- Notification Stack -->
         <div id="notification-stack">
-            <!-- 1. Caution Card (Top Priority) -->
+            <!-- 1. Caution Card -->
             <div id="caution-card" class="toast-card toast-hidden caution-theme">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#ea8600"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
                 <span>We can’t detect your index finger. Improve the lighting and bring your index finger in front of the camera.</span>
             </div>
 
-            <!-- 2. Privacy Toast (Standard) -->
+            <!-- 2. Privacy Toast -->
             <div id="toast-notification" class="toast-card">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="#1a73e8"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                 <span>Camera data is processed locally only. We don’t store it.</span>
@@ -122,7 +129,7 @@
                 <div class="nav-content-wrapper">
                     <div class="title-version-group">
                         <h1 class="main-game-title bebas-neue-regular">Balloon Adventure</h1>
-                        <p class="version">Version 1.0</p>
+                        <p class="version">Version 1.1.0</p>
                     </div>
                     <div class="nav-buttons-group">
                         <button id="instructionBtn" class="nav-btn">General Instructions</button> 

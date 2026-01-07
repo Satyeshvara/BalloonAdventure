@@ -107,7 +107,7 @@
     cursor: pointer;
 
     /* Effects & Animation */
-    transition: background-color 0.3s ease;
+    transition: background-color 0.25s ease;
 }
 
 #developer-exit-btn:hover {
